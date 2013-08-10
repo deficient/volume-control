@@ -21,7 +21,7 @@ function vcontrol.new(args)
     local sw = setmetatable({}, vcontrol.wmt)
 
     sw.cmd = "amixer"
-    sw.cardid  = args.cardid or 0
+    sw.cardid  = args.cardid or nil
     sw.channel = args.channel or "Master"
 
     sw.widget = wibox.widget.textbox()
@@ -60,7 +60,11 @@ function vcontrol:mixercommand(command)
 end
 
 function vcontrol:mkcmd(command)
-    return "amixer -c " .. self.cardid .. " " .. command
+    if self.cardid == nil then
+        return "amixer " .. command
+    else
+        return "amixer -c " .. self.cardid .. " " .. command
+    end
 end
 
 function vcontrol:update()
