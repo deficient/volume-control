@@ -31,24 +31,11 @@ In your `rc.lua`:
             function() awful.util.spawn(TERMINAL .. " -x alsamixer") end)
     ))
 
+
     -- add the widget to your wibox
-    for s = 1, screen.count() do
-      
-        mywibox[s] = awful.wibox({ position = "top", screen = s })
-
-        ...
-        -- Widgets that are aligned to the right
-        local right_layout = wibox.layout.fixed.horizontal()
-        right_layout:add(volumecfg.widget)
-        ...
-
-        -- Now bring it all together
-        local layout = wibox.layout.align.horizontal()
-        layout:set_left(left_layout)
-        layout:set_right(right_layout)
-
-        mywibox[s]:set_widget(layout)
-    end
+    ...
+    right_layout:add(volumecfg.widget)
+    ...
 
 
 ### Requirements
