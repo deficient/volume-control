@@ -24,9 +24,11 @@ In your `rc.lua`:
     -- define your volume control
     volumecfg = volume_control({channel="Master"})
 
+    -- open alsamixer in terminal on middle-mouse
     volumecfg.widget:buttons(awful.util.table.join(
         volumecfg.widget:buttons(),
-        awful.button({ }, 2, cli.w("alsamixer"))
+        awful.button({ }, 2,
+            function() awful.util.spawn(TERMINAL .. " -x alsamixer") end)
     ))
 
     -- add the widget to your wibox
