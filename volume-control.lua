@@ -60,16 +60,14 @@ function vcontrol.new(args)
     ))
 
     sw.timer = timer({ timeout = args.timeout or 10 })
-    sw.timer:connect_signal("timeout", function() sw:update() end)
+    sw.timer:connect_signal("timeout", function() sw:get() end)
     sw.timer:start()
-    sw:update()
+    sw:get()
 
     return sw
 end
 
-function vcontrol:mixercommand(command)
-    local status = readcommand(command)
-
+function vcontrol:update(status)
     local volume = string.match(status, "(%d?%d?%d)%%")
     if volume == nil then
         return
@@ -84,32 +82,34 @@ function vcontrol:mixercommand(command)
     self.widget:set_text(volume .. " ")
 end
 
-function vcontrol:mkcmd(...)
+function vcontrol:mixercommand(...)
+    local command
     if self.cardid == nil then
-        return argv("amixer", ...)
+        command = argv(self.cmd, ...)
     else
-        return argv("amixer", "-c", self.cardid, ...)
+        command = argv(self.cmd, "-c", self.cardid, ...)
     end
+    return readcommand(command)
 end
 
-function vcontrol:update()
-    self:mixercommand(self:mkcmd("get", self.channel))
+function vcontrol:get()
+    self:update(self:mixercommand("get", self.channel))
 end
 
 function vcontrol:up()
-    self:mixercommand(self:mkcmd("set", self.channel, self.step .. "+"))
+    self:update(self:mixercommand("set", self.channel, self.step .. "+"))
 end
 
 function vcontrol:down()
-    self:mixercommand(self:mkcmd("set", self.channel, self.step .. "-"))
+    self:update(self:mixercommand("set", self.channel, self.step .. "-"))
 end
 
 function vcontrol:toggle()
-    self:mixercommand(self:mkcmd("set", self.channel, "toggle"))
+    self:update(self:mixercommand("set", self.channel, "toggle"))
 end
 
 function vcontrol:mute()
-    self:mixercommand(self:mkcmd("set", "Master", "mute"))
+    self:update(self:mixercommand("set", "Master", "mute"))
 end
 
 function vcontrol.mt:__call(...)
