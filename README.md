@@ -8,34 +8,38 @@ Volume indicator+control widget for awesome window manager.
 
 Drop the script into your awesome config folder. Suggestion:
 
-    cd ~/.config/awesome
-    git clone https://github.com/coldfix/awesome.volume-control.git
-    ln -s awesome.volume-control/volume-control.lua
+```bash
+cd ~/.config/awesome
+git clone https://github.com/coldfix/awesome.volume-control.git
+ln -s awesome.volume-control/volume-control.lua
+```
 
 
 ### Usage
 
-In your `rc.lua`:
+In your `~/.config/awesome/rc.lua`:
 
-    -- load the widget code
-    local volume_control = require("volume-control")
-
-
-    -- define your volume control
-    volumecfg = volume_control({channel="Master"})
-
-    -- open alsamixer in terminal on middle-mouse
-    volumecfg.widget:buttons(awful.util.table.join(
-        volumecfg.widget:buttons(),
-        awful.button({ }, 2,
-            function() awful.util.spawn(TERMINAL .. " -x alsamixer") end)
-    ))
+```lua
+-- load the widget code
+local volume_control = require("volume-control")
 
 
-    -- add the widget to your wibox
-    ...
-    right_layout:add(volumecfg.widget)
-    ...
+-- define your volume control
+volumecfg = volume_control({channel="Master"})
+
+-- open alsamixer in terminal on middle-mouse
+volumecfg.widget:buttons(awful.util.table.join(
+    volumecfg.widget:buttons(),
+    awful.button({ }, 2,
+        function() awful.util.spawn(TERMINAL .. " -x alsamixer") end)
+))
+
+
+-- add the widget to your wibox
+...
+right_layout:add(volumecfg.widget)
+...
+```
 
 
 ### Requirements
