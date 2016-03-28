@@ -27,6 +27,7 @@ local volume_control = require("volume-control")
 -- define your volume control
 volumecfg = volume_control({channel="Master"})
 
+
 -- open alsamixer in terminal on middle-mouse
 volumecfg.widget:buttons(awful.util.table.join(
     volumecfg.widget:buttons(),
@@ -39,6 +40,16 @@ volumecfg.widget:buttons(awful.util.table.join(
 ...
 right_layout:add(volumecfg.widget)
 ...
+
+
+-- add key bindings
+local globalkeys = awful.util.table.join(
+    ...
+    awful.key({}, "XF86AudioRaiseVolume",function () volumecfg:up() end),
+    awful.key({}, "XF86AudioLowerVolume",function  () volumecfg:down() end),
+    awful.key({}, "XF86AudioMute",function  () volumecfg:toggle() end),
+    ...
+)
 ```
 
 
