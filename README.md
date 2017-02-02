@@ -28,13 +28,6 @@ local volume_control = require("volume-control")
 volumecfg = volume_control({channel="Master"})
 
 
--- open alsamixer in terminal on middle-mouse
-volumecfg.widget:buttons(awful.util.table.join(
-    volumecfg.widget:buttons(),
-    awful.button({}, 2, function() awful.util.spawn(TERMINAL .. " -x alsamixer") end)
-))
-
-
 -- add the widget to your wibox
 ...
 right_layout:add(volumecfg.widget)
@@ -49,6 +42,23 @@ local globalkeys = awful.util.table.join(
     awful.key({}, "XF86AudioMute",        function() volumecfg:toggle() end),
     ...
 )
+```
+
+By default
+
+- *left-click* will toggle mute
+- *middle-* and *right-click* will start `pavucontrol`
+
+The easiest way to customize these actions is to specify additional arguments
+to the constructor, e.g.:
+
+```lua
+volumecfg = volume_control({
+  channel="Master",
+  lclick=function(self) self:toggle() end,
+  mclick=TERMINAL .. " -x alsamixer",   -- command to execute
+  rclick="mute",                        -- name of member function
+})
 ```
 
 

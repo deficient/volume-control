@@ -48,13 +48,17 @@ function vcontrol.new(args)
     sw.cardid  = args.cardid or nil
     sw.channel = args.channel or "Master"
     sw.step = args.step or '5%'
+    sw.lclick = args.lclick or "toggle"
+    sw.mclick = args.mclick or nil
+    sw.rclick = args.rclick or "toggle"
 
     sw.widget = wibox.widget.textbox()
     sw.widget.set_align("right")
 
     sw.widget:buttons(awful.util.table.join(
-        awful.button({}, 1, function() sw:toggle() end),
-        awful.button({}, 3, function() awful.spawn("pavucontrol") end),
+        awful.button({}, 1, function() sw:action(sw.lclick) end),
+        awful.button({}, 2, function() sw:action(sw.mclick) end),
+        awful.button({}, 3, function() sw:action(sw.rclick) end),
         awful.button({}, 4, function() sw:up() end),
         awful.button({}, 5, function() sw:down() end)
     ))
@@ -65,6 +69,21 @@ function vcontrol.new(args)
     sw:get()
 
     return sw
+end
+
+function vcontrol:action(action)
+    if action == nil then
+        return
+    end
+    if type(action) == "function" then
+        action(self)
+    elseif type(action) == "string" then
+        if self[action] ~= nil then
+            self[action](self)
+        else
+            awful.spawn(action)
+        end
+    end
 end
 
 function vcontrol:update(status)
