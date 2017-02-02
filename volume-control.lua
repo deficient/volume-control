@@ -54,7 +54,7 @@ function vcontrol.new(args)
 
     sw.widget:buttons(awful.util.table.join(
         awful.button({}, 1, function() sw:toggle() end),
-        awful.button({}, 3, function() sw:toggle() end),
+        awful.button({}, 3, function() awful.spawn("pavucontrol") end),
         awful.button({}, 4, function() sw:up() end),
         awful.button({}, 5, function() sw:down() end)
     ))
