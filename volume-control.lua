@@ -49,8 +49,8 @@ function vcontrol.new(args)
     sw.channel = args.channel or "Master"
     sw.step = args.step or '5%'
     sw.lclick = args.lclick or "toggle"
-    sw.mclick = args.mclick or nil
-    sw.rclick = args.rclick or "toggle"
+    sw.mclick = args.mclick or "pavucontrol"
+    sw.rclick = args.rclick or "pavucontrol"
 
     sw.widget = wibox.widget.textbox()
     sw.widget.set_align("right")
