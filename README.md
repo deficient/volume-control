@@ -64,4 +64,20 @@ volumecfg = volume_control({
 
 ### Requirements
 
-* [awesome 3.5](http://awesome.naquadah.org/)
+* [awesome 4.0](http://awesome.naquadah.org/)
+
+Note, it might also work on awesome 3.5 if you replace:
+
+```diff
+--- a/volume-control.lua
++++ b/volume-control.lua
+@@ -81,7 +81,7 @@ function vcontrol:action(action)
+         if self[action] ~= nil then
+             self[action](self)
+         else
+-            awful.spawn(action)
++            awful.util.spawn(action)
+         end
+     end
+ end
+```
