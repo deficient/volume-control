@@ -79,7 +79,7 @@ E.g.:
 volumecfg = volume_control({
   lclick="toggle",                        -- name of member function
   mclick=TERMINAL .. " -x alsamixer",     -- command to execute
-  rclick=function(self) self:mute() end,  -- callable, equivalent to "toggle"
+  rclick=function(self) self:mute() end,  -- callable, equivalent to "mute"
 })
 ```
 
