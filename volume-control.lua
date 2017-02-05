@@ -45,6 +45,7 @@ function vcontrol.new(args)
     local sw = setmetatable({}, vcontrol.wmt)
 
     sw.cmd = "amixer"
+    sw.device = args.device or nil
     sw.cardid  = args.cardid or nil
     sw.channel = args.channel or "Master"
     sw.step = args.step or '5%'
@@ -102,12 +103,12 @@ function vcontrol:update(status)
 end
 
 function vcontrol:mixercommand(...)
-    local command
-    if self.cardid == nil then
-        command = argv(self.cmd, ...)
-    else
-        command = argv(self.cmd, "-c", self.cardid, ...)
-    end
+    local args = awful.util.table.join(
+      {self.cmd},
+      self.device and {"-D", self.device} or {},
+      self.cardid and {"-c", self.cardid} or {},
+      {...})
+    local command = argv(unpack(args))
     return readcommand(command)
 end
 

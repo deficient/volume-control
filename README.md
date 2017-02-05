@@ -24,8 +24,8 @@ In your `~/.config/awesome/rc.lua`:
 local volume_control = require("volume-control")
 
 
--- define your volume control
-volumecfg = volume_control({channel="Master"})
+-- define your volume control, using default settings:
+volumecfg = volume_control({})
 
 
 -- add the widget to your wibox
@@ -44,20 +44,42 @@ local globalkeys = awful.util.table.join(
 )
 ```
 
-By default
+### Constructor
 
-- *left-click* will toggle mute
-- *middle-* and *right-click* will start `pavucontrol`
-
-The easiest way to customize these actions is to specify additional arguments
-to the constructor, e.g.:
+You can specify any subset of the following arguments to the constructor.
+The default values are as follows:
 
 ```lua
 volumecfg = volume_control({
-  channel="Master",
-  lclick=function(self) self:toggle() end,
-  mclick=TERMINAL .. " -x alsamixer",   -- command to execute
-  rclick="mute",                        -- name of member function
+  device  = nil,            -- e.g.: "default", "pulse"
+  cardid  = nil,            -- e.g.: 0, 1, ...
+  channel = "Master",
+  step    = '5%',           -- step size for up/down
+  lclick  = "toggle",       -- mouse actions described below
+  mclick  = "pavucontrol",
+  rclick  = "pavucontrol",
+})
+```
+
+Try, `device="pulse"` if having problems.
+
+### Mouse actions
+
+The easiest way to customize what happens on left/right/middle click is to
+specify additional arguments to the constructor. These can be of any of the
+following kinds:
+
+- name of a member function: `"up"`, `"down"`, `"toggle"`, `"mute"`, `"get"`
+- command string to execute
+- a callable that will be called with the volume control as first parameter
+
+E.g.:
+
+```lua
+volumecfg = volume_control({
+  lclick="toggle",                        -- name of member function
+  mclick=TERMINAL .. " -x alsamixer",     -- command to execute
+  rclick=function(self) self:mute() end,  -- callable, equivalent to "toggle"
 })
 ```
 
@@ -71,7 +93,7 @@ Note, it might also work on awesome 3.5 if you replace:
 ```diff
 --- a/volume-control.lua
 +++ b/volume-control.lua
-@@ -81,7 +81,7 @@ function vcontrol:action(action)
+@@ -82,7 +82,7 @@ function vcontrol:action(action)
          if self[action] ~= nil then
              self[action](self)
          else
