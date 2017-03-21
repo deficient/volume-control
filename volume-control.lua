@@ -1,13 +1,7 @@
+-- Volume Control
 local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
-
--- Volume Control
-
--- vcontrol.mt: module (class) metatable
--- vcontrol.wmt: widget (instance) metatable
-local vcontrol = { mt = {}, wmt = {} }
-vcontrol.wmt.__index = vcontrol
 
 
 ------------------------------------------
@@ -42,8 +36,10 @@ end
 -- Volume control interface
 ------------------------------------------
 
-function vcontrol.new(args)
-    local sw = setmetatable({}, vcontrol.wmt)
+local vcontrol = {}
+
+function vcontrol:new(args)
+    local sw = setmetatable({}, {__index = self})
 
     sw.cmd = "amixer"
     sw.device = args.device or nil
@@ -133,9 +129,7 @@ function vcontrol:mute()
     self:update(self:mixercommand("set", "Master", "mute"))
 end
 
-function vcontrol.mt:__call(...)
-    return vcontrol.new(...)
-end
-
-return setmetatable(vcontrol, vcontrol.mt)
+return setmetatable(vcontrol, {
+    __call = vcontrol.new,
+})
 
