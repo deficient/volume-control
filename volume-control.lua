@@ -39,34 +39,36 @@ end
 local vcontrol = {}
 
 function vcontrol:new(args)
-    local sw = setmetatable({}, {__index = self})
+    return setmetatable({}, {__index = self}):init(args)
+end
 
-    sw.cmd = "amixer"
-    sw.device = args.device or nil
-    sw.cardid  = args.cardid or nil
-    sw.channel = args.channel or "Master"
-    sw.step = args.step or '5%'
-    sw.lclick = args.lclick or "toggle"
-    sw.mclick = args.mclick or "pavucontrol"
-    sw.rclick = args.rclick or "pavucontrol"
+function vcontrol:init(args)
+    self.cmd = "amixer"
+    self.device = args.device or nil
+    self.cardid  = args.cardid or nil
+    self.channel = args.channel or "Master"
+    self.step = args.step or '5%'
+    self.lclick = args.lclick or "toggle"
+    self.mclick = args.mclick or "pavucontrol"
+    self.rclick = args.rclick or "pavucontrol"
 
-    sw.widget = wibox.widget.textbox()
-    sw.widget.set_align("right")
+    self.widget = wibox.widget.textbox()
+    self.widget.set_align("right")
 
-    sw.widget:buttons(awful.util.table.join(
-        awful.button({}, 1, function() sw:action(sw.lclick) end),
-        awful.button({}, 2, function() sw:action(sw.mclick) end),
-        awful.button({}, 3, function() sw:action(sw.rclick) end),
-        awful.button({}, 4, function() sw:up() end),
-        awful.button({}, 5, function() sw:down() end)
+    self.widget:buttons(awful.util.table.join(
+        awful.button({}, 1, function() self:action(self.lclick) end),
+        awful.button({}, 2, function() self:action(self.mclick) end),
+        awful.button({}, 3, function() self:action(self.rclick) end),
+        awful.button({}, 4, function() self:up() end),
+        awful.button({}, 5, function() self:down() end)
     ))
 
-    sw.timer = gears.timer({ timeout = args.timeout or 0.5 })
-    sw.timer:connect_signal("timeout", function() sw:get() end)
-    sw.timer:start()
-    sw:get()
+    self.timer = gears.timer({ timeout = args.timeout or 0.5 })
+    self.timer:connect_signal("timeout", function() self:get() end)
+    self.timer:start()
+    self:get()
 
-    return sw
+    return self
 end
 
 function vcontrol:action(action)
