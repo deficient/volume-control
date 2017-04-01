@@ -51,6 +51,10 @@ function vcontrol:init(args)
     self.lclick = args.lclick or "toggle"
     self.mclick = args.mclick or "pavucontrol"
     self.rclick = args.rclick or "pavucontrol"
+    self.widget_text = {
+        on  = '% 3d%% ',
+        off = '% 3dM ',
+    }
 
     self.widget = wibox.widget.textbox()
     self.widget.set_align("right")
@@ -72,33 +76,19 @@ function vcontrol:init(args)
 end
 
 function vcontrol:action(action)
-    if action == nil then
-        return
-    end
-    if type(action) == "function" then
-        action(self)
-    elseif type(action) == "string" then
-        if self[action] ~= nil then
-            self[action](self)
-        else
-            awful.spawn(action)
-        end
+    if self[action]                   then self[action](self)
+    elseif type(action) == "function" then action(self)
+    elseif type(action) == "string"   then awful.spawn(action)
     end
 end
 
 function vcontrol:update(status)
-    local volume = string.match(status, "(%d?%d?%d)%%")
-    if volume == nil then
-        return
+    local volume = status:match("(%d?%d?%d)%%")
+    local state  = status:match("%[(o[nf]*)%]")
+    if volume and state then
+        self.widget:set_text(
+            self.widget_text[state]:format(volume))
     end
-    volume = string.format("% 3d", volume)
-    status = string.match(status, "%[(o[^%]]*)%]")
-    if string.find(status, "on", 1, true) then
-        volume = volume .. "%"
-    else
-        volume = volume .. "M"
-    end
-    self.widget:set_text(volume .. " ")
 end
 
 function vcontrol:mixercommand(...)
