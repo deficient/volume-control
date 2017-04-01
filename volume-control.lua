@@ -19,16 +19,16 @@ local function quote_arg(str)
     return "'" .. string.gsub(str, "'", "'\\''") .. "'"
 end
 
-local function quote_args(first, ...)
-    if #{...} == 0 then
-        return quote_arg(first)
-    else
-        return quote_arg(first), quote_args(...)
+local function table_map(func, tab)
+    local result = {}
+    for i, v in ipairs(tab) do
+        result[i] = func(v)
     end
+    return result
 end
 
-local function make_argv(...)
-    return table.concat({quote_args(...)}, " ")
+local function make_argv(args)
+    return table.concat(table_map(quote_arg, args), " ")
 end
 
 
@@ -107,8 +107,7 @@ function vcontrol:mixercommand(...)
       self.device and {"-D", self.device} or {},
       self.cardid and {"-c", self.cardid} or {},
       {...})
-    local command = make_argv(unpack(args))
-    return readcommand(command)
+    return readcommand(make_argv(args))
 end
 
 function vcontrol:get()
