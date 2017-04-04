@@ -2,10 +2,12 @@
 local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
+local naughty = require("naughty")
 
 -- compatibility fallbacks for 3.5:
 local timer = gears.timer or timer
 local spawn = awful.spawn or awful.util.spawn
+local watch = awful.spawn and awful.spawn.with_line_callback
 
 
 ------------------------------------------
@@ -74,6 +76,16 @@ function vcontrol:init(args)
     self.timer = timer({ timeout = args.timeout or 0.5 })
     self.timer:connect_signal("timeout", function() self:get() end)
     self.timer:start()
+
+    if (args.listen or args.listen == nil) and watch then
+        self.listener = watch({'stdbuf', '-oL', 'alsactl', 'monitor'}, {
+          stdout = function(line) self:get() end,
+        })
+        awesome.connect_signal("exit", function()
+            awesome.kill(self.listener, 9)
+        end)
+    end
+
     self:get()
 
     return self
