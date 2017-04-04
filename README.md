@@ -10,8 +10,7 @@ Drop the script into your awesome config folder. Suggestion:
 
 ```bash
 cd ~/.config/awesome
-git clone https://github.com/coldfix/awesome.volume-control.git
-ln -s awesome.volume-control/volume-control.lua
+git clone https://github.com/coldfix/awesome.volume-control.git volume-control
 ```
 
 
