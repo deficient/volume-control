@@ -3,6 +3,10 @@ local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
 
+-- compatibility fallbacks for 3.5:
+local timer = gears.timer or timer
+local spawn = awful.spawn or awful.util.spawn
+
 
 ------------------------------------------
 -- Private utility functions
@@ -67,7 +71,7 @@ function vcontrol:init(args)
         awful.button({}, 5, function() self:down() end)
     ))
 
-    self.timer = gears.timer({ timeout = args.timeout or 0.5 })
+    self.timer = timer({ timeout = args.timeout or 0.5 })
     self.timer:connect_signal("timeout", function() self:get() end)
     self.timer:start()
     self:get()
@@ -78,7 +82,7 @@ end
 function vcontrol:action(action)
     if self[action]                   then self[action](self)
     elseif type(action) == "function" then action(self)
-    elseif type(action) == "string"   then awful.spawn(action)
+    elseif type(action) == "string"   then spawn(action)
     end
 end
 
