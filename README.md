@@ -10,7 +10,7 @@ Drop the script into your awesome config folder. Suggestion:
 
 ```bash
 cd ~/.config/awesome
-git clone https://github.com/coldfix/awesome-volume-control.git
+git clone https://github.com/deficient/volume-control.git
 ```
 
 
@@ -20,7 +20,7 @@ In your `~/.config/awesome/rc.lua`:
 
 ```lua
 -- load the widget code
-local volume_control = require("awesome-volume-control")
+local volume_control = require("volume-control")
 
 
 -- define your volume control, using default settings:
