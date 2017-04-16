@@ -3,12 +3,12 @@ local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
 local naughty = require("naughty")
+local beautiful = require("beautiful")
 
 -- compatibility fallbacks for 3.5:
 local timer = gears.timer or timer
 local spawn = awful.spawn or awful.util.spawn
 local watch = awful.spawn and awful.spawn.with_line_callback
-
 
 ------------------------------------------
 -- Private utility functions
@@ -37,7 +37,6 @@ local function make_argv(args)
     return table.concat(table_map(quote_arg, args), " ")
 end
 
-
 ------------------------------------------
 -- Volume control interface
 ------------------------------------------
@@ -61,9 +60,14 @@ function vcontrol:init(args)
         on  = '% 3d%% ',
         off = '% 3dM ',
     }
+    self.img = args.image
 
-    self.widget = wibox.widget.textbox()
-    self.widget.set_align("right")
+    if args.image == true then
+        self.widget = wibox.widget.imagebox()
+    else
+        self.widget = wibox.widget.textbox()
+        self.widget.set_align("right")
+    end
 
     self.widget:buttons(awful.util.table.join(
         awful.button({}, 1, function() self:action(self.lclick) end),
@@ -102,8 +106,21 @@ function vcontrol:update(status)
     local volume = status:match("(%d?%d?%d)%%")
     local state  = status:match("%[(o[nf]*)%]")
     if volume and state then
-        self.widget:set_text(
-            self.widget_text[state]:format(volume))
+        if self.img == true then
+            local volume = tonumber(volume)
+            if volume == 0 or state == "off" then
+                self.widget:set_image(beautiful.audio_mute)
+            elseif volume >= 66 then
+                self.widget:set_image(beautiful.audio_high)
+            elseif volume >= 33 then
+                self.widget:set_image(beautiful.audio_med)
+            else
+              self.widget:set_image(beautiful.audio_low)
+            end
+        else
+            self.widget:set_text(
+                self.widget_text[state]:format(volume))
+        end
     end
 end
 
@@ -139,4 +156,3 @@ end
 return setmetatable(vcontrol, {
     __call = vcontrol.new,
 })
-
