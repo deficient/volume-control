@@ -37,6 +37,17 @@ local function make_argv(args)
     return table.concat(table_map(quote_arg, args), " ")
 end
 
+local function substitute(template, context)
+  if type(template) == "string" then
+    return (template:gsub("%${([%w_]+)}", function(key)
+      return tostring(context[key] or "default")
+    end))
+  else
+    -- function / functor:
+    return template(context)
+  end
+end
+
 
 ------------------------------------------
 -- Volume control interface
@@ -61,9 +72,15 @@ function vcontrol:init(args)
         on  = '% 3d%% ',
         off = '% 3dM ',
     }
+    self.tooltip_text = args.tooltip_text or [[
+Volume: ${volume}% ${state}
+Channel: ${channel}
+Device: ${device}
+Card: ${card}]]
 
     self.widget = wibox.widget.textbox()
     self.widget.set_align("right")
+    self.tooltip = awful.tooltip({objects={self.widget}})
 
     self.widget:buttons(awful.util.table.join(
         awful.button({}, 1, function() self:action(self.lclick) end),
@@ -104,6 +121,13 @@ function vcontrol:update(status)
     if volume and state then
         self.widget:set_text(
             self.widget_text[state]:format(volume))
+        self.tooltip:set_text(substitute(self.tooltip_text, {
+            volume  = volume,
+            state   = state,
+            device  = self.device,
+            card    = self.card,
+            channel = self.channel,
+        }))
     end
 end
 
