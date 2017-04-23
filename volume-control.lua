@@ -80,7 +80,7 @@ Card: ${card}]]
 
     self.widget = wibox.widget.textbox()
     self.widget.set_align("right")
-    self.tooltip = awful.tooltip({objects={self.widget}})
+    self.tooltip = args.tooltip and awful.tooltip({objects={self.widget}})
 
     self.widget:buttons(awful.util.table.join(
         awful.button({}, 1, function() self:action(self.lclick) end),
@@ -121,13 +121,15 @@ function vcontrol:update(status)
     if volume and state then
         self.widget:set_text(
             self.widget_text[state]:format(volume))
-        self.tooltip:set_text(substitute(self.tooltip_text, {
-            volume  = volume,
-            state   = state,
-            device  = self.device,
-            card    = self.card,
-            channel = self.channel,
-        }))
+        if self.tooltip then
+            self.tooltip:set_text(substitute(self.tooltip_text, {
+                volume  = volume,
+                state   = state,
+                device  = self.device,
+                card    = self.card,
+                channel = self.channel,
+            }))
+        end
     end
 end
 
