@@ -48,12 +48,6 @@ local function substitute(template, context)
   end
 end
 
-local function bind1st(func, fst)
-    return function(...)
-        return func(fst, ...)
-    end
-end
-
 ------------------------------------------
 -- Volume control interface
 ------------------------------------------
@@ -78,8 +72,8 @@ function vcontrol:init(args)
     self.widget = args.widget    or (self:create_widget(args)  or self.widget)
     self.tooltip = args.tooltip and (self:create_tooltip(args) or self.tooltip)
 
-    self:register(args.callback or bind1st(self.update_widget, self))
-    self:register(args.tooltip and bind1st(self.update_tooltip, self))
+    self:register(args.callback or self.update_widget)
+    self:register(args.tooltip and self.update_tooltip)
 
     self.widget:buttons(awful.util.table.join(
         awful.button({}, 1, function() self:action(self.lclick) end),
@@ -125,7 +119,7 @@ function vcontrol:update(status)
     local state  = status:match("%[(o[nf]*)%]")
     if volume and state then
         for _, callback in ipairs(self.callbacks) do
-            callback(tonumber(volume), state:lower())
+            callback(self, tonumber(volume), state:lower())
         end
     end
 end
