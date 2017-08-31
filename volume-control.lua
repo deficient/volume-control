@@ -68,19 +68,15 @@ function vcontrol:init(args)
     self.lclick = args.lclick or "toggle"
     self.mclick = args.mclick or "pavucontrol"
     self.rclick = args.rclick or "pavucontrol"
-    self.widget_text = {
-        on  = '% 3d%% ',
-        off = '% 3dM ',
-    }
-    self.tooltip_text = args.tooltip_text or [[
-Volume: ${volume}% ${state}
-Channel: ${channel}
-Device: ${device}
-Card: ${card}]]
 
-    self.widget = wibox.widget.textbox()
-    self.widget.set_align("right")
-    self.tooltip = args.tooltip and awful.tooltip({objects={self.widget}})
+    self.widget = args.widget    or (self:create_widget(args)  or self.widget)
+    self.tooltip = args.tooltip and (self:create_tooltip(args) or self.tooltip)
+
+    if args.callback then
+        self.update_widget = function(self, volume, state)
+            return args.callback(volume, state)
+        end
+    end
 
     self.widget:buttons(awful.util.table.join(
         awful.button({}, 1, function() self:action(self.lclick) end),
@@ -119,16 +115,9 @@ function vcontrol:update(status)
     local volume = status:match("(%d?%d?%d)%%")
     local state  = status:match("%[(o[nf]*)%]")
     if volume and state then
-        self.widget:set_text(
-            self.widget_text[state]:format(volume))
+        self:update_widget(volume, state)
         if self.tooltip then
-            self.tooltip:set_text(substitute(self.tooltip_text, {
-                volume  = volume,
-                state   = state,
-                device  = self.device,
-                card    = self.card,
-                channel = self.channel,
-            }))
+            self:update_tooltip(volume, state)
         end
     end
 end
@@ -160,6 +149,41 @@ end
 
 function vcontrol:mute()
     self:update(self:mixercommand("set", "Master", "mute"))
+end
+
+-- text widget
+function vcontrol:create_widget(args)
+    self.widget_text = {
+        on  = '% 3d%% ',
+        off = '% 3dM ',
+    }
+    self.widget = wibox.widget.textbox()
+    self.widget.set_align("right")
+end
+
+function vcontrol:update_widget(volume, state)
+    self.widget:set_text(
+        self.widget_text[state]:format(volume))
+end
+
+-- tooltip
+function vcontrol:create_tooltip(args)
+    self.tooltip_text = args.tooltip_text or [[
+Volume: ${volume}% ${state}
+Channel: ${channel}
+Device: ${device}
+Card: ${card}]]
+    self.tooltip = args.tooltip and awful.tooltip({objects={self.widget}})
+end
+
+function vcontrol:update_tooltip(volume, state)
+    self.tooltip:set_text(substitute(self.tooltip_text, {
+        volume  = volume,
+        state   = state,
+        device  = self.device,
+        card    = self.card,
+        channel = self.channel,
+    }))
 end
 
 return setmetatable(vcontrol, {
