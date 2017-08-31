@@ -105,8 +105,16 @@ function vcontrol:update(status)
     local volume = status:match("(%d?%d?%d)%%")
     local state  = status:match("%[(o[nf]*)%]")
     if volume and state then
+        local volume = tonumber(volume)
+        local state = state:lower()
+        local muted = state == "off"
         for _, callback in ipairs(self.callbacks) do
-            callback(self, tonumber(volume), state:lower())
+            callback(self, {
+                volume = volume,
+                state = state,
+                muted = muted,
+                on = not muted,
+            })
         end
     end
 end
@@ -181,9 +189,9 @@ function vwidget:create_widget(args)
     self.widget.set_align("right")
 end
 
-function vwidget:update_widget(volume, state)
+function vwidget:update_widget(setting)
     self.widget:set_text(
-        self.widget_text[state]:format(volume))
+        self.widget_text[setting.state]:format(setting.volume))
 end
 
 -- tooltip
@@ -196,10 +204,10 @@ Card: ${card}]]
     self.tooltip = args.tooltip and awful.tooltip({objects={self.widget}})
 end
 
-function vwidget:update_tooltip(volume, state)
+function vwidget:update_tooltip(setting)
     self.tooltip:set_text(substitute(self.tooltip_text, {
-        volume  = volume,
-        state   = state,
+        volume  = setting.volume,
+        state   = setting.state,
         device  = self.device,
         card    = self.card,
         channel = self.channel,
