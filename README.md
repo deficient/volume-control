@@ -57,6 +57,8 @@ volumecfg = volume_control({
   lclick  = "toggle",       -- mouse actions described below
   mclick  = "pavucontrol",
   rclick  = "pavucontrol",
+  widget  = nil,            -- use this instead of creating a awful.widget.textbox
+  callback = nil,           -- called to update the widget: `callback(self, state)`
 })
 ```
 
@@ -82,6 +84,30 @@ volumecfg = volume_control({
 })
 ```
 
+### Icon widget
+
+You can use the module as a basis to implement your own volume widget. For
+example, an icon widget can be created as follows:
+
+```lua
+local function get_image(volume, state)
+    local icondir = os.getenv("HOME") .. "/.local/share/icons/"
+    if volume == 0 or state == "off"  then return icondir .. "audio_mute.png"
+    elseif volume <= 33               then return icondir .. "audio_low.png"
+    elseif volume <= 66               then return icondir .. "audio_med.png"
+    else                                   return icondir .. "audio_high.png"
+    end
+end
+
+local volume_widget = volume_control {
+    tooltip = true,
+    widget = wibox.widget.imagebox(),
+    callback = function(self, setting)
+        self.widget:set_image(
+            get_image(setting.volume, setting.state))
+    end,
+}
+```
 
 ### Requirements
 
