@@ -73,23 +73,6 @@ function vcontrol:init(args)
     self.cardid  = args.cardid or nil
     self.channel = args.channel or "Master"
     self.step = args.step or '5%'
-    self.lclick = args.lclick or "toggle"
-    self.mclick = args.mclick or "pavucontrol"
-    self.rclick = args.rclick or "pavucontrol"
-
-    self.widget = args.widget    or (self:create_widget(args)  or self.widget)
-    self.tooltip = args.tooltip and (self:create_tooltip(args) or self.tooltip)
-
-    self:register(args.callback or self.update_widget)
-    self:register(args.tooltip and self.update_tooltip)
-
-    self.widget:buttons(awful.util.table.join(
-        awful.button({}, 1, function() self:action(self.lclick) end),
-        awful.button({}, 2, function() self:action(self.mclick) end),
-        awful.button({}, 3, function() self:action(self.rclick) end),
-        awful.button({}, 4, function() self:up() end),
-        awful.button({}, 5, function() self:down() end)
-    ))
 
     self.timer = timer({ timeout = args.timeout or 0.5 })
     self.timer:connect_signal("timeout", function() self:get() end)
@@ -103,8 +86,6 @@ function vcontrol:init(args)
             awesome.kill(self.listener, 9)
         end)
     end
-
-    self:get()
 end
 
 function vcontrol:register(callback)
@@ -159,8 +140,39 @@ function vcontrol:mute()
     self:update(self:mixercommand("set", "Master", "mute"))
 end
 
+------------------------------------------
+-- Volume control widget
+------------------------------------------
+
+-- derive so that users can still call up/down/mute etc
+local vwidget = class(vcontrol)
+
+function vwidget:init(args)
+    vcontrol.init(self, args)
+
+    self.lclick = args.lclick or "toggle"
+    self.mclick = args.mclick or "pavucontrol"
+    self.rclick = args.rclick or "pavucontrol"
+
+    self.widget = args.widget    or (self:create_widget(args)  or self.widget)
+    self.tooltip = args.tooltip and (self:create_tooltip(args) or self.tooltip)
+
+    self:register(args.callback or self.update_widget)
+    self:register(args.tooltip and self.update_tooltip)
+
+    self.widget:buttons(awful.util.table.join(
+        awful.button({}, 1, function() self:action(self.lclick) end),
+        awful.button({}, 2, function() self:action(self.mclick) end),
+        awful.button({}, 3, function() self:action(self.rclick) end),
+        awful.button({}, 4, function() self:up() end),
+        awful.button({}, 5, function() self:down() end)
+    ))
+
+    self:get()
+end
+
 -- text widget
-function vcontrol:create_widget(args)
+function vwidget:create_widget(args)
     self.widget_text = {
         on  = '% 3d%% ',
         off = '% 3dM ',
@@ -169,13 +181,13 @@ function vcontrol:create_widget(args)
     self.widget.set_align("right")
 end
 
-function vcontrol:update_widget(volume, state)
+function vwidget:update_widget(volume, state)
     self.widget:set_text(
         self.widget_text[state]:format(volume))
 end
 
 -- tooltip
-function vcontrol:create_tooltip(args)
+function vwidget:create_tooltip(args)
     self.tooltip_text = args.tooltip_text or [[
 Volume: ${volume}% ${state}
 Channel: ${channel}
@@ -184,7 +196,7 @@ Card: ${card}]]
     self.tooltip = args.tooltip and awful.tooltip({objects={self.widget}})
 end
 
-function vcontrol:update_tooltip(volume, state)
+function vwidget:update_tooltip(volume, state)
     self.tooltip:set_text(substitute(self.tooltip_text, {
         volume  = volume,
         state   = state,
@@ -194,4 +206,6 @@ function vcontrol:update_tooltip(volume, state)
     }))
 end
 
-return vcontrol
+-- provide direct access to the control class
+vwidget.control = vcontrol
+return vwidget
