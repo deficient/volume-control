@@ -48,6 +48,11 @@ local function substitute(template, context)
   end
 end
 
+local function bind1st(func, fst)
+    return function(...)
+        return func(fst, ...)
+    end
+end
 
 ------------------------------------------
 -- Volume control interface
@@ -60,6 +65,7 @@ function vcontrol:new(args)
 end
 
 function vcontrol:init(args)
+    self.callbacks = {}
     self.cmd = "amixer"
     self.device = args.device or nil
     self.cardid  = args.cardid or nil
@@ -72,11 +78,8 @@ function vcontrol:init(args)
     self.widget = args.widget    or (self:create_widget(args)  or self.widget)
     self.tooltip = args.tooltip and (self:create_tooltip(args) or self.tooltip)
 
-    if args.callback then
-        self.update_widget = function(self, volume, state)
-            return args.callback(volume, state)
-        end
-    end
+    self:register(args.callback or bind1st(self.update_widget, self))
+    self:register(args.tooltip and bind1st(self.update_tooltip, self))
 
     self.widget:buttons(awful.util.table.join(
         awful.button({}, 1, function() self:action(self.lclick) end),
@@ -104,6 +107,12 @@ function vcontrol:init(args)
     return self
 end
 
+function vcontrol:register(callback)
+    if callback then
+        table.insert(self.callbacks, callback)
+    end
+end
+
 function vcontrol:action(action)
     if self[action]                   then self[action](self)
     elseif type(action) == "function" then action(self)
@@ -115,9 +124,8 @@ function vcontrol:update(status)
     local volume = status:match("(%d?%d?%d)%%")
     local state  = status:match("%[(o[nf]*)%]")
     if volume and state then
-        self:update_widget(volume, state)
-        if self.tooltip then
-            self:update_tooltip(volume, state)
+        for _, callback in ipairs(self.callbacks) do
+            callback(tonumber(volume), state:lower())
         end
     end
 end
