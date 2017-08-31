@@ -48,15 +48,23 @@ local function substitute(template, context)
   end
 end
 
+local function new(self, ...)
+    local instance = setmetatable({}, {__index = self})
+    return instance:init(...) or instance
+end
+
+local function class(base)
+    return setmetatable({new = new}, {
+        __call = new,
+        __index = base,
+    })
+end
+
 ------------------------------------------
 -- Volume control interface
 ------------------------------------------
 
-local vcontrol = {}
-
-function vcontrol:new(args)
-    return setmetatable({}, {__index = self}):init(args)
-end
+local vcontrol = class()
 
 function vcontrol:init(args)
     self.callbacks = {}
@@ -97,8 +105,6 @@ function vcontrol:init(args)
     end
 
     self:get()
-
-    return self
 end
 
 function vcontrol:register(callback)
@@ -188,7 +194,4 @@ function vcontrol:update_tooltip(volume, state)
     }))
 end
 
-return setmetatable(vcontrol, {
-    __call = vcontrol.new,
-})
-
+return vcontrol
