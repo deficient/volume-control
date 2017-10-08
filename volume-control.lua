@@ -148,6 +148,14 @@ function vcontrol:mute()
     self:update(self:mixercommand("set", "Master", "mute"))
 end
 
+function vcontrol:list_sinks()
+    return readcommand("pactl list sinks"):gmatch("Description: ([^\n]+)")
+end
+
+function vcontrol:set_default_sink(name)
+    os.execute(("pactl set-default-sink %s"):format(name))
+end
+
 ------------------------------------------
 -- Volume control widget
 ------------------------------------------
@@ -160,7 +168,7 @@ function vwidget:init(args)
 
     self.lclick = args.lclick or "toggle"
     self.mclick = args.mclick or "pavucontrol"
-    self.rclick = args.rclick or "pavucontrol"
+    self.rclick = args.rclick or self.show_menu
 
     self.widget = args.widget    or (self:create_widget(args)  or self.widget)
     self.tooltip = args.tooltip and (self:create_tooltip(args) or self.tooltip)
@@ -187,6 +195,24 @@ function vwidget:create_widget(args)
     }
     self.widget = wibox.widget.textbox()
     self.widget.set_align("right")
+end
+
+function vwidget:create_menu()
+    local sinks = {}
+    for sink in self:list_sinks() do
+        local i = #sinks
+        table.insert(sinks, {sink, function() self:set_default_sink(i) end})
+    end
+    return awful.menu { items = {
+        { "mute", function() self:mute() end },
+        { "unmute", function() self:unmute() end },
+        { "Default Sink", sinks },
+        { "pavucontrol", function() self:action("pavucontrol") end },
+    } }
+end
+
+function vwidget:show_menu()
+    self:create_menu():show()
 end
 
 function vwidget:update_widget(setting)
