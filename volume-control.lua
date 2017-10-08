@@ -83,7 +83,7 @@ function vcontrol:init(args)
           stdout = function(line) self:get() end,
         })
         awesome.connect_signal("exit", function()
-            awesome.kill(self.listener, 9)
+            awesome.kill(self.listener, awesome.unix_signal.SIGTERM)
         end)
     end
 end
