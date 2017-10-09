@@ -223,7 +223,6 @@ function vwidget:show_menu()
     self.menu = self:create_menu()
     local menu = self.menu
     menu:show()
-    menu.wibox:connect_signal("mouse::leave", function() menu:hide() end)
     menu.wibox:connect_signal("property::visible", function() self.menu = nil end)
 end
 
