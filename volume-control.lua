@@ -216,7 +216,15 @@ function vwidget:create_menu()
 end
 
 function vwidget:show_menu()
-    self:create_menu():show()
+    if self.menu then
+        self.menu:hide()
+        return
+    end
+    self.menu = self:create_menu()
+    local menu = self.menu
+    menu:show()
+    menu.wibox:connect_signal("mouse::leave", function() menu:hide() end)
+    menu.wibox:connect_signal("property::visible", function() self.menu = nil end)
 end
 
 function vwidget:update_widget(setting)
