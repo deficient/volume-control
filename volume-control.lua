@@ -218,12 +218,13 @@ end
 function vwidget:show_menu()
     if self.menu then
         self.menu:hide()
-        return
+    else
+        self.menu = self:create_menu()
+        self.menu:show()
+        self.menu.wibox:connect_signal("property::visible", function()
+            self.menu = nil
+        end)
     end
-    self.menu = self:create_menu()
-    local menu = self.menu
-    menu:show()
-    menu.wibox:connect_signal("property::visible", function() self.menu = nil end)
 end
 
 function vwidget:update_widget(setting)
