@@ -112,3 +112,10 @@ local volume_widget = volume_control {
 ### Requirements
 
 * [awesome 4.0](http://awesome.naquadah.org/) or possibly 3.5
+
+### Alternatives
+
+If you like a volume control with an icon instead of text, I suggest to use
+[pasystray](https://github.com/christophgysin/pasystray), which is a more
+comprehensible solution and built for the systray (not awesome widget) with a
+much nicer menu.
