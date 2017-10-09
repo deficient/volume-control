@@ -148,6 +148,10 @@ function vcontrol:mute()
     self:update(self:mixercommand("set", "Master", "mute"))
 end
 
+function vcontrol:unmute()
+    self:update(self:mixercommand("set", "Master", "unmute"))
+end
+
 function vcontrol:list_sinks()
     return readcommand("pactl list sinks"):gmatch("Description: ([^\n]+)")
 end
