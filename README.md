@@ -4,6 +4,8 @@
 
 Volume indicator+control widget for awesome window manager.
 
+![Screenshot](/screenshot.png?raw=true "Screenshot")
+
 ### Installation
 
 Drop the script into your awesome config folder. Suggestion:
