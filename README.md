@@ -1,18 +1,24 @@
 ## awesome.volume-control
 
-### Description
-
 Volume indicator+control widget for awesome window manager.
 
 ![Screenshot](/screenshot.png?raw=true "Screenshot")
 
 ### Installation
 
-Drop the script into your awesome config folder. Suggestion:
+Simply drop the script into your awesome config folder, e.g.:
 
 ```bash
 cd ~/.config/awesome
 git clone https://github.com/deficient/volume-control.git
+```
+
+I recommend to also install the following:
+
+```bash
+pacman -S pavucontrol       # open volume manager with middle/right click
+pacman -S acpid             # instant status updates (acpi_listen)
+systemctl enable acpid
 ```
 
 
@@ -111,13 +117,18 @@ local volume_widget = volume_control {
 }
 ```
 
+However, in this case, I recommend to use
+[pasystray](https://github.com/christophgysin/pasystray) instead.
+
 ### Requirements
 
-* [awesome 4.0](http://awesome.naquadah.org/) or possibly 3.5
+* [awesome 4.0](http://awesome.naquadah.org/). May work on 3.5 with minor changes
+* pavucontrol (optional)
+* acpid (optional)
 
 ### Alternatives
 
 If you like a volume control with an icon instead of text, I suggest to use
 [pasystray](https://github.com/christophgysin/pasystray), which is a more
-comprehensible solution and built for the systray (not awesome widget) with a
+comprehensive solution and built for the systray (not awesome widget) with a
 much nicer menu.
