@@ -153,11 +153,22 @@ function vcontrol:unmute()
 end
 
 function vcontrol:list_sinks()
-    return readcommand("pactl list sinks"):gmatch("Description: ([^\n]+)")
+    local sinks = {}
+    local sink
+    for line in io.popen("pactl list sinks"):lines() do
+        if line:match("Sink #%d+") then
+            sink = {}
+            table.insert(sinks, sink)
+        else
+            local k, v = line:match("^%s*(%S+):%s*(.-)%s*$")
+            if k and v then sink[k:lower()] = v end
+        end
+    end
+    return sinks
 end
 
 function vcontrol:set_default_sink(name)
-    os.execute(("pactl set-default-sink %s"):format(name))
+    os.execute(make_argv{"pactl set-default-sink", name})
 end
 
 ------------------------------------------
@@ -203,9 +214,10 @@ end
 
 function vwidget:create_menu()
     local sinks = {}
-    for sink in self:list_sinks() do
-        local i = #sinks
-        table.insert(sinks, {sink, function() self:set_default_sink(i) end})
+    for i, sink in ipairs(self:list_sinks()) do
+        table.insert(sinks, {sink.description, function()
+            self:set_default_sink(sink.name)
+        end})
     end
     return awful.menu { items = {
         { "mute", function() self:mute() end },
