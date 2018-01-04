@@ -155,7 +155,7 @@ end
 function vcontrol:list_sinks()
     local sinks = {}
     local sink
-    for line in io.popen("pactl list sinks"):lines() do
+    for line in io.popen("env LC_ALL=C pactl list sinks"):lines() do
         if line:match("Sink #%d+") then
             sink = {}
             table.insert(sinks, sink)
