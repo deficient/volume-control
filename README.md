@@ -66,6 +66,7 @@ volumecfg = volume_control({
   mclick  = "pavucontrol",
   rclick  = "pavucontrol",
   widget  = nil,            -- use this instead of creating a awful.widget.textbox
+  font    = nil,            -- font used for the widget's text
   callback = nil,           -- called to update the widget: `callback(self, state)`
 })
 ```
