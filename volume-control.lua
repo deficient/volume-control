@@ -187,6 +187,7 @@ function vwidget:init(args)
 
     self.widget = args.widget    or (self:create_widget(args)  or self.widget)
     self.tooltip = args.tooltip and (self:create_tooltip(args) or self.tooltip)
+    self.font = args.font        or nil
 
     self:register(args.callback or self.update_widget)
     self:register(args.tooltip and self.update_tooltip)
@@ -209,6 +210,9 @@ function vwidget:create_widget(args)
         off = '% 3dM ',
     }
     self.widget = wibox.widget.textbox()
+    if self.font then
+      self.widget.font = self.font
+    end
     self.widget.set_align("right")
 end
 
