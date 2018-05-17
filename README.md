@@ -68,6 +68,15 @@ volumecfg = volume_control({
   widget  = nil,            -- use this instead of creating a awful.widget.textbox
   font    = nil,            -- font used for the widget's text
   callback = nil,           -- called to update the widget: `callback(self, state)`
+  widget_text = {
+    on  = '% 3d%% ',        -- three digits, fill with leading spaces
+    off = '% 3dM ',
+  },
+  tooltip_text = [[
+Volume: ${volume}% ${state}
+Channel: ${channel}
+Device: ${device}
+Card: ${card}]],
 })
 ```
 
