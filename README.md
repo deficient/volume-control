@@ -67,6 +67,7 @@ volumecfg = volume_control({
   rclick  = "pavucontrol",
   widget  = nil,            -- use this instead of creating a awful.widget.textbox
   font    = nil,            -- font used for the widget's text
+  prefix  = nil,            -- text to show before the displayed volume, e.g.: '🔊'
   callback = nil,           -- called to update the widget: `callback(self, state)`
 })
 ```
