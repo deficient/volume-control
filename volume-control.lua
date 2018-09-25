@@ -144,6 +144,12 @@ function vcontrol:toggle()
     self:update(self:mixercommand("set", self.channel, "toggle"))
 end
 
+function vcontrol:toggle_master()
+    self:update(self:mixercommand("set", "Master", "toggle"))
+    self:update(self:mixercommand("set", "Headphone", "unmute"))
+    self:update(self:mixercommand("set", "Speaker", "unmute"))
+end
+
 function vcontrol:mute()
     self:update(self:mixercommand("set", "Master", "mute"))
 end
