@@ -51,6 +51,20 @@ local globalkeys = awful.util.table.join(
 )
 ```
 
+### Known issues
+
+One common pitfall is using the wrong sound device. On systems with pulseaudio,
+it's usually best to create the control with:
+
+```lua
+volumecfg = volume_control {device="pulse"}
+```
+
+On some systems, clicking the widget will mute audio, however clicking it again
+will only unmute *Master* while leaving other subsystems (Speaker, …) muted,
+see e.g. [#10](https://github.com/deficient/volume-control/pull/10). This may
+be fixed by setting the device to *pulse*, as described above.
+
 ### Constructor
 
 You can specify any subset of the following arguments to the constructor.
@@ -79,8 +93,6 @@ Device: ${device}
 Card: ${card}]],
 })
 ```
-
-Try, `device="pulse"` if having problems.
 
 ### Mouse actions
 
