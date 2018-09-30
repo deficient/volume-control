@@ -78,7 +78,7 @@ function vcontrol:init(args)
     self.timer:connect_signal("timeout", function() self:get() end)
     self.timer:start()
 
-    if (args.listen or args.listen == nil) and watch then
+    if args.listen and watch then
         self.listener = watch({'stdbuf', '-oL', 'alsactl', 'monitor'}, {
           stdout = function(line) self:get() end,
         })
