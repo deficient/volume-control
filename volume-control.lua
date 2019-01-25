@@ -122,6 +122,7 @@ end
 function vcontrol:mixercommand(...)
     local args = awful.util.table.join(
       {self.cmd},
+      (self.cmd == "amixer") and {"-M"} or {},
       self.device and {"-D", self.device} or {},
       self.cardid and {"-c", self.cardid} or {},
       {...})
