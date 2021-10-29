@@ -9,33 +9,14 @@ local timer = gears.timer or timer
 local spawn = awful.spawn or awful.util.spawn
 local watch = awful.spawn and awful.spawn.with_line_callback
 
+local function exec(command, callback)
+    awful.spawn.easy_async(command, callback or function() end)
+end
+
 
 ------------------------------------------
 -- Private utility functions
 ------------------------------------------
-
-local function readcommand(command)
-    local file = io.popen(command)
-    local text = file:read('*all')
-    file:close()
-    return text
-end
-
-local function quote_arg(str)
-    return "'" .. string.gsub(str, "'", "'\\''") .. "'"
-end
-
-local function table_map(func, tab)
-    local result = {}
-    for i, v in ipairs(tab) do
-        result[i] = func(v)
-    end
-    return result
-end
-
-local function make_argv(args)
-    return table.concat(table_map(quote_arg, args), " ")
-end
 
 local function substitute(template, context)
   if type(template) == "string" then
@@ -119,57 +100,61 @@ function vcontrol:update(status)
     end
 end
 
-function vcontrol:mixercommand(...)
+function vcontrol:mixercommand(args, callback)
     local args = awful.util.table.join(
       {self.cmd},
       (self.cmd == "amixer") and {"-M"} or {},
       self.device and {"-D", self.device} or {},
       self.cardid and {"-c", self.cardid} or {},
-      {...})
-    return readcommand(make_argv(args))
+      args)
+    exec(args, callback or function(output)
+        self:update(output)
+    end)
 end
 
 function vcontrol:get()
-    self:update(self:mixercommand("get", self.channel))
+    self:mixercommand({ "get", self.channel })
 end
 
 function vcontrol:up()
-    self:update(self:mixercommand("set", self.channel, self.step .. "+"))
+    self:mixercommand({ "set", self.channel, self.step .. "+" })
 end
 
 function vcontrol:down()
-    self:update(self:mixercommand("set", self.channel, self.step .. "-"))
+    self:mixercommand({ "set", self.channel, self.step .. "-" })
 end
 
 function vcontrol:toggle()
-    self:update(self:mixercommand("set", self.channel, "toggle"))
+    self:mixercommand({ "set", self.channel, "toggle" })
 end
 
 function vcontrol:mute()
-    self:update(self:mixercommand("set", "Master", "mute"))
+    self:mixercommand({ "set", "Master", "mute" })
 end
 
 function vcontrol:unmute()
-    self:update(self:mixercommand("set", "Master", "unmute"))
+    self:mixercommand({ "set", "Master", "unmute" })
 end
 
-function vcontrol:list_sinks()
-    local sinks = {}
-    local sink
-    for line in io.popen("env LC_ALL=C pactl list sinks"):lines() do
-        if line:match("Sink #%d+") then
-            sink = {}
-            table.insert(sinks, sink)
-        else
-            local k, v = line:match("^%s*(%S+):%s*(.-)%s*$")
-            if k and v then sink[k:lower()] = v end
+function vcontrol:list_sinks(callback)
+    exec("env LC_ALL=C pactl list sinks", function(output)
+        local sinks = {}
+        local sink
+        for line in output:gmatch("[^\r\n]+") do
+            if line:match("Sink #%d+") then
+                sink = {}
+                table.insert(sinks, sink)
+            else
+                local k, v = line:match("^%s*(%S+):%s*(.-)%s*$")
+                if k and v then sink[k:lower()] = v end
+            end
         end
-    end
-    return sinks
+        callback(sinks)
+    end)
 end
 
-function vcontrol:set_default_sink(name)
-    os.execute(make_argv{"pactl set-default-sink", name})
+function vcontrol:set_default_sink(name, callback)
+    exec({"pactl set-default-sink", name}, callback)
 end
 
 ------------------------------------------
@@ -217,29 +202,33 @@ function vwidget:create_widget(args)
     self.widget.set_align("right")
 end
 
-function vwidget:create_menu()
-    local sinks = {}
-    for i, sink in ipairs(self:list_sinks()) do
-        table.insert(sinks, {sink.description, function()
-            self:set_default_sink(sink.name)
-        end})
-    end
-    return awful.menu { items = {
-        { "mute", function() self:mute() end },
-        { "unmute", function() self:unmute() end },
-        { "Default Sink", sinks },
-        { "pavucontrol", function() self:action("pavucontrol") end },
-    } }
+function vwidget:create_menu(callback)
+    self:list_sinks(function(sinks)
+        local sinks_submenu = {}
+        for i, sink in ipairs(sinks) do
+            table.insert(sinks_submenu, {sink.description, function()
+                self:set_default_sink(sink.name)
+            end})
+        end
+        callback(awful.menu { items = {
+            { "mute", function() self:mute() end },
+            { "unmute", function() self:unmute() end },
+            { "Default Sink", sinks_submenu },
+            { "pavucontrol", function() self:action("pavucontrol") end },
+        } })
+    end)
 end
 
 function vwidget:show_menu()
     if self.menu then
         self.menu:hide()
     else
-        self.menu = self:create_menu()
-        self.menu:show()
-        self.menu.wibox:connect_signal("property::visible", function()
-            self.menu = nil
+        self:create_menu(function(menu)
+            self.menu = menu
+            self.menu:show()
+            self.menu.wibox:connect_signal("property::visible", function()
+                self.menu = nil
+            end)
         end)
     end
 end

@@ -152,7 +152,7 @@ However, in this case, I recommend to use
 
 ### Requirements
 
-* [awesome 4.0](http://awesome.naquadah.org/). May work on 3.5 with minor changes
+* [awesome 4.0](http://awesome.naquadah.org/).
 * pavucontrol (optional)
 * acpid (optional)
 
