@@ -156,6 +156,20 @@ However, in this case, I recommend to use
 * pavucontrol (optional)
 * acpid (optional)
 
+You will also need `amixer` and `alsactl`, most likely your distro has a
+package called `alsa-utils` that contains them.
+
+If you are using `pipewire`, you have to configure it to manage clients
+using the userspace component of ALSA. For example on Arch Linux, this can
+be done by installing the package `pipewire-alsa`. For Debian, you can
+follow the instructions provided in the
+[Debian Wiki](https://wiki.debian.org/PipeWire#For_ALSA).
+
+Similarly, if you are using `pulseaudio`, you need to configure it to manage
+clients using the userspace component of ALSA. For Arch Linux, that means
+installing the package `pulseaudio-alsa`.
+
+
 ### Alternatives
 
 If you like a volume control with an icon instead of text, I suggest to use
