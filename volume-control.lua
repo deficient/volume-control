@@ -199,7 +199,6 @@ function vwidget:create_widget(args)
     if self.font then
       self.widget.font = self.font
     end
-    self.widget.set_align("right")
 end
 
 function vwidget:create_menu(callback)
