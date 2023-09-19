@@ -65,12 +65,12 @@ will only unmute *Master* while leaving other subsystems (Speaker, …) muted,
 see e.g. [#10](https://github.com/deficient/volume-control/pull/10). This may
 be fixed by setting the device to *pulse*, as described above.
 
-If you have the `listen` enabled, unplugging USB headphones sometimes causes the
-process that monitors for audio status changes (`alsactl monitor`) to spin at
-100% CPU, see [#11](https://github.com/deficient/volume-conrtol/issues/11). When
-this happens, you can safely kill the process or restart awesome (`Mod4 +
-Control + R`). As of yet, there is no known fix other than setting
-`listen=false`.
+For pre-2019 `alsa-utils`, if you have the `listen` enabled, unplugging USB
+headphones sometimes causes the process that monitors for audio status changes
+(`alsactl monitor`) to spin at 100% CPU, see
+[#11](https://github.com/deficient/volume-control/issues/11). When this
+happens, you can safely kill the process or restart awesome (`Mod4 + Control +
+R`). This bug was fixed in `alsa-utils 1.1.7`.
 
 ### Constructor
 
