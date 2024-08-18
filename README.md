@@ -1,3 +1,5 @@
+**This repository has been assimilated into** https://github.com/deficient/deficient
+
 ## awesome.volume-control
 
 Volume indicator+control widget for awesome window manager.
